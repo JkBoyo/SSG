@@ -24,6 +24,13 @@ class LeafNode(HtmlNode):
         if self.value == None:
             raise ValueError("All Leaf Nodes must have a value")
         
+    
+    def __eq__(self, other):
+        if not isinstance(other, LeafNode):
+            return NotImplemented
+        
+        return self.tag == other.tag and self.value == other.value and self.props == other.props
+        
     def to_html(self):
         if self.tag == None:
             return self.value
