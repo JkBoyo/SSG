@@ -5,7 +5,6 @@ from textnode import TextNode
 
 def main():
     TN = TextNode("I am a string", "string", "http://string.com")
-    print(TN.__repr__())
     
 def text_node_to_html_node(textnode):
     match textnode.text_type:
