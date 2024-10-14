@@ -9,7 +9,7 @@ from textnode import TextNode
 class TestTNConversion(unittest.TestCase):
     def test_conversion_by_text_type(self):
         test_cases = [
-            (TextNode("this is a test", Text_Type.test, None), 
+            (TextNode("this is a test", Text_Type.text, None), 
             LeafNode(None, "this is a test", None),
             "text test"), 
             (TextNode("this is a test", Text_Type.bold, None), 
@@ -29,8 +29,8 @@ class TestTNConversion(unittest.TestCase):
             "image test")
         ]
 
-        for text_node_ex, expected_result in test_cases:
-            self.assertEqual(text_node_to_html_node(text_node_ex), expected_result)
+        for text_node_ex, expected_result, message in test_cases:
+            self.assertEqual(text_node_to_html_node(text_node_ex), expected_result, message)
 
     def test_invalid_text_type(self):
         node = TextNode("this is a test", 'incorrect', None)
