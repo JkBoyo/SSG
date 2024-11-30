@@ -1,7 +1,13 @@
 import unittest
 
 from constants import Text_Type
-from mdtotextnode import split_nodes_delimiter
+from mdtotextnode import (
+    extract_markdown_images,
+    extract_markdown_links,
+    split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link
+)
 from textnode import TextNode
 
 
@@ -54,3 +60,84 @@ class Test_MD_Parsing(unittest.TestCase):
         ]
         with self.assertRaises(Exception, msg= "Incorrect Markdown closing symbol not found"):
             split_nodes_delimiter(test_single_delimiter_list, '**', Text_Type.bold)
+
+    def test_extract_md_img(self):
+        test_string = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        result = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+        for link_tuple in extract_markdown_images(test_string):
+            self.assertIn(link_tuple, result)
+
+    def test_extract_md_link(self):
+        test_string = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        result = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        for link_tuple in extract_markdown_links(test_string):
+            self.assertIn(link_tuple, result)
+
+    def test_split_nodes_links(self):
+        test_nodes = [
+            TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+                     Text_Type.text)
+        ]
+
+        result_nodes = [
+            TextNode("This is text with a link ", Text_Type.text),
+            TextNode("to boot dev", Text_Type.link, "https://www.boot.dev"),
+            TextNode(" and ", Text_Type.text),
+            TextNode(
+                "to youtube", Text_Type.link, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        self.assertEqual(split_nodes_link(test_nodes), result_nodes)
+    def test_split_nodes_imgs(self):
+        test_nodes = [
+            TextNode(
+                "This is text with a image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+                     Text_Type.text)
+        ]
+
+        result_nodes = [
+            TextNode("This is text with a image ", Text_Type.text),
+            TextNode("to boot dev", Text_Type.image, "https://www.boot.dev"),
+            TextNode(" and ", Text_Type.text),
+            TextNode(
+                "to youtube", Text_Type.image, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+        self.assertEqual(split_nodes_image(test_nodes), result_nodes)
+
+    def test_split_nodes_img_and_link(self):
+        test_nodes = [
+            TextNode(
+                "This is text with a link [to boot dev](https://www.boot.dev) and an img ![to youtube](https://www.youtube.com/@bootdotdev)",
+                     Text_Type.text)
+        ]
+
+        result_nodes_img = [
+            TextNode("This is text with a link [to boot dev](https://www.boot.dev) and an img ", Text_Type.text),
+            TextNode(
+                "to youtube", Text_Type.image, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        result_nodes_link = [
+            TextNode("This is text with a link ", Text_Type.text),
+            TextNode("to boot dev", Text_Type.link, "https://www.boot.dev"),
+            TextNode(
+                " and an img ![to youtube](https://www.youtube.com/@bootdotdev)", Text_Type.text),
+        ]
+
+        result_nodes_both = [
+            TextNode("This is text with a link ", Text_Type.text),
+            TextNode("to boot dev", Text_Type.link, "https://www.boot.dev"),
+            TextNode(" and an img ", Text_Type.text),
+            TextNode(
+                "to youtube", Text_Type.image, "https://www.youtube.com/@bootdotdev"
+            ),
+        ]
+
+        self.assertEqual(split_nodes_image(test_nodes), result_nodes_img)
+
+        self.assertEqual(split_nodes_link(test_nodes), result_nodes_link)
+
+        self.assertEqual(split_nodes_image(split_nodes_link(test_nodes)), result_nodes_both)
