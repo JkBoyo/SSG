@@ -6,7 +6,8 @@ from mdtotextnode import (
     extract_markdown_links,
     split_nodes_delimiter,
     split_nodes_image,
-    split_nodes_link
+    split_nodes_link,
+    text_to_textnodes
 )
 from textnode import TextNode
 
@@ -141,3 +142,20 @@ class Test_MD_Parsing(unittest.TestCase):
         self.assertEqual(split_nodes_link(test_nodes), result_nodes_link)
 
         self.assertEqual(split_nodes_image(split_nodes_link(test_nodes)), result_nodes_both)
+    
+    def test_text_to_textnodes(self):
+        test_text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+
+        result_nodes = [
+                TextNode("This is ", Text_Type.text),
+                TextNode("text", Text_Type.bold),
+                TextNode(" with an ", Text_Type.text),
+                TextNode("italic", Text_Type.italic),
+                TextNode(" word and a ", Text_Type.text),
+                TextNode("code block", Text_Type.code),
+                TextNode(" and an ", Text_Type.text),
+                TextNode("obi wan image", Text_Type.image, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", Text_Type.text),
+                TextNode("link", Text_Type.link, "https://boot.dev"),
+            ]   
+        self.assertEqual(text_to_textnodes(test_text), result_nodes)

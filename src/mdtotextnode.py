@@ -3,7 +3,21 @@ from re import findall
 from constants import Text_Type
 from textnode import TextNode
 
-old_nodes = []
+def text_to_textnodes(text):
+    text_n = TextNode(text, Text_Type.text)
+    text_n_results = split_nodes_link(
+                split_nodes_image(
+                split_nodes_delimiter(
+                split_nodes_delimiter(
+                split_nodes_delimiter(
+                    [text_n], '**', Text_Type.bold
+                    ), '*', Text_Type.italic
+                ), '`', Text_Type.code
+            )
+        )
+    )
+    return text_n_results
+
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
     for node in old_nodes:
