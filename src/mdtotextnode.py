@@ -1,6 +1,6 @@
-from re import findall
+from re import match, findall
 
-from constants import Text_Type
+from constants import Text_Type, Block_Type
 from textnode import TextNode
 
 def markdown_to_blocks(markdown):
@@ -10,6 +10,34 @@ def markdown_to_blocks(markdown):
         if block == '':
             block_list.remove(block)
     return block_list
+
+def block_to_block_type(block:str) -> str:
+    split_block = block.splitlines()
+    if match("^#{1,6} ", block):
+        return Block_Type.heading
+    elif block[:3] == '```' and block[-3:] == '```':
+        return Block_Type.code
+    elif line_start_contains(split_block, '>'):
+        return Block_Type.quote
+    elif line_start_contains(split_block, '*-'):
+        return Block_Type.unordered_list
+    elif check_for_ordered_list(split_block):
+        return Block_Type.ordered_list
+    else:
+        return Block_Type.paragraph
+    
+    
+def line_start_contains(block_lines, chars):
+    for line in block_lines:
+        if line[0] not in chars:
+            return False
+    return True
+    
+def check_for_ordered_list(block_lines):
+    for i, line in enumerate(block_lines, int = 1):
+        if not (line[:2] == f"{i}. "):
+            return False
+    return True
 
 def text_to_textnodes(text):
     text_n = TextNode(text, Text_Type.text)
