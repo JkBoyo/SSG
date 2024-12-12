@@ -3,6 +3,14 @@ from re import findall
 from constants import Text_Type
 from textnode import TextNode
 
+def markdown_to_blocks(markdown):
+    block_list = markdown.split('\n\n')
+    for block in block_list:
+        block.strip()
+        if block == '':
+            block_list.remove(block)
+    return block_list
+
 def text_to_textnodes(text):
     text_n = TextNode(text, Text_Type.text)
     text_n_results = split_nodes_link(

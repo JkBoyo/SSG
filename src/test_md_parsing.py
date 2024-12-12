@@ -7,8 +7,9 @@ from mdtotextnode import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
-    text_to_textnodes
-)
+    text_to_textnodes,
+    markdown_to_blocks
+    )
 from textnode import TextNode
 
 
@@ -159,3 +160,14 @@ class Test_MD_Parsing(unittest.TestCase):
                 TextNode("link", Text_Type.link, "https://boot.dev"),
             ]   
         self.assertEqual(text_to_textnodes(test_text), result_nodes)
+
+    def test_markdown_to_blocks(self):
+        test_md = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n* This is the first list item in a list block\n* This is a list item\n* This is another list item"
+
+        result_blocks = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
+
+        ]
+        self.assertEqual(markdown_to_blocks(test_md), result_blocks)
