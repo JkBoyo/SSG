@@ -11,31 +11,30 @@ def markdown_to_blocks(markdown):
             block_list.remove(block)
     return block_list
 
-def block_to_block_type(block:str) -> str:
-    split_block = block.splitlines()
+def block_to_block_type(block:str):
     if match("^#{1,6} ", block):
         return Block_Type.heading
     elif block[:3] == '```' and block[-3:] == '```':
         return Block_Type.code
-    elif line_start_contains(split_block, '>'):
+    elif line_start_contains(block, '>'):
         return Block_Type.quote
-    elif line_start_contains(split_block, '*-'):
+    elif line_start_contains(block, '*-'):
         return Block_Type.unordered_list
-    elif check_for_ordered_list(split_block):
+    elif check_for_ordered_list(block):
         return Block_Type.ordered_list
     else:
         return Block_Type.paragraph
     
     
-def line_start_contains(block_lines, chars):
-    for line in block_lines:
-        if line[0] not in chars:
+def line_start_contains(block, chars):
+    for line in block.splitlines():
+        if line[0] not in chars or line[1] != ' ':
             return False
     return True
     
-def check_for_ordered_list(block_lines):
-    for i, line in enumerate(block_lines, int = 1):
-        if not (line[:2] == f"{i}. "):
+def check_for_ordered_list(block):
+    for i, line in enumerate(block.splitlines(), start = 1):
+        if line[:3] != f"{i}. ":
             return False
     return True
 
