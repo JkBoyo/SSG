@@ -2,6 +2,49 @@ from re import match, findall
 
 from constants import Text_Type, Block_Type
 from textnode import TextNode
+from htmlnode import ParentNode
+from main import text_node_to_html_node
+
+def markdown_to_html_node(markdown):
+    block_list = markdown_to_blocks(markdown)
+    
+    for block in block_list:
+        block_type = block_to_block_type(block)
+
+def block_to_html_node(block, block_type):
+    match(block_type):
+        case Block_Type.heading:
+            header, text = block.split(maxsplit=1)
+            heading_size = header.count('#')
+            return ParentNode(f"h{heading_size}", 
+                              text_to_htmlnode(text))
+        case Block_Type.code:
+            #cut off the backticks
+            text = block[3:-4]
+            return ParentNode('code',
+                              text_to_htmlnode(text))
+        case Block_Type.quote:
+            text = block.strip('>')
+            return ParentNode('blockquote',
+                              text_to_htmlnode(text))
+        case Block_Type.unordered_list:
+            return ParentNode('ul', )
+        case Block_Type.ordered_list:
+            pass
+        case Block_Type.paragraph:
+            return ParentNode('p',
+                              text_to_htmlnode(block))
+
+def text_to_htmlnode(text):
+    children = text_to_textnodes(text)
+    return [text_node_to_html_node(child) for child in children]
+
+def text_to_html_list_nodes(text):
+    nodes = text.splitlines()
+    html_nodes = []
+    for node in nodes:
+        html_nodes.append(ParentNode('li', text_to_htmlnode(node)))
+    return html_nodes
 
 def markdown_to_blocks(markdown):
     block_list = markdown.split('\n\n')
