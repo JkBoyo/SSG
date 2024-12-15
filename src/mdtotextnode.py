@@ -2,14 +2,15 @@ from re import match, findall
 
 from constants import Text_Type, Block_Type
 from textnode import TextNode
-from htmlnode import ParentNode
-from main import text_node_to_html_node
+from htmlnode import ParentNode, LeafNode
 
 def markdown_to_html_node(markdown):
     block_list = markdown_to_blocks(markdown)
-    
+    html_node_list = []
     for block in block_list:
         block_type = block_to_block_type(block)
+        html_node_list.append(block_to_html_node(block, block_type))
+    return html_node_list
 
 def block_to_html_node(block, block_type):
     match(block_type):
@@ -20,7 +21,7 @@ def block_to_html_node(block, block_type):
                               text_to_htmlnode(text))
         case Block_Type.code:
             #cut off the backticks
-            text = block[3:-4]
+            text = block[3:-4].strip()
             return ParentNode('code',
                               text_to_htmlnode(text))
         case Block_Type.quote:
@@ -28,27 +29,51 @@ def block_to_html_node(block, block_type):
             return ParentNode('blockquote',
                               text_to_htmlnode(text))
         case Block_Type.unordered_list:
-            return ParentNode('ul', )
+            return ParentNode('ul',
+                              text_to_html_list_nodes(block, 'ul'))
         case Block_Type.ordered_list:
-            pass
+            return ParentNode('ol',
+                              text_to_html_list_nodes(block, 'ol'))
         case Block_Type.paragraph:
             return ParentNode('p',
                               text_to_htmlnode(block))
+        
+def text_node_to_html_node(textnode):
+    match textnode.text_type:
+        case Text_Type.text:
+            return LeafNode(None, textnode.text, None)
+        case Text_Type.bold:
+            return LeafNode('b', textnode.text, None)
+        case Text_Type.italic:
+            return LeafNode('i', textnode.text, None)
+        case Text_Type.code:
+            return LeafNode('code', textnode.text, None)
+        case Text_Type.link:
+            return LeafNode('a', textnode.text, {'href': textnode.url})
+        case Text_Type.image:
+            return LeafNode('img', "", {'src': textnode.url, 'alt': textnode.text})
+        case _:
+            raise ValueError("Unknown text type")
 
 def text_to_htmlnode(text):
     children = text_to_textnodes(text)
     return [text_node_to_html_node(child) for child in children]
 
-def text_to_html_list_nodes(text):
+def text_to_html_list_nodes(text, list_type):
     nodes = text.splitlines()
     html_nodes = []
+    if list_type == 'ul':
+        strip_length = 2
+    if list_type == 'ol':
+        strip_length = 3
     for node in nodes:
-        html_nodes.append(ParentNode('li', text_to_htmlnode(node)))
+        html_nodes.append(ParentNode('li', text_to_htmlnode(node[strip_length:])))
     return html_nodes
 
 def markdown_to_blocks(markdown):
     block_list = markdown.split('\n\n')
     for block in block_list:
+        print(f"-{block}-")
         block.strip()
         if block == '':
             block_list.remove(block)
@@ -83,17 +108,21 @@ def check_for_ordered_list(block):
 
 def text_to_textnodes(text):
     text_n = TextNode(text, Text_Type.text)
-    text_n_results = split_nodes_link(
-                split_nodes_image(
-                split_nodes_delimiter(
-                split_nodes_delimiter(
-                split_nodes_delimiter(
-                    [text_n], '**', Text_Type.bold
-                    ), '*', Text_Type.italic
-                ), '`', Text_Type.code
+    try:
+        text_n_results = split_nodes_link(
+                    split_nodes_image(
+                    split_nodes_delimiter(
+                    split_nodes_delimiter(
+                    split_nodes_delimiter(
+                        [text_n], '**', Text_Type.bold
+                        ), '*', Text_Type.italic
+                    ), '`', Text_Type.code
+                )
             )
         )
-    )
+    except Exception as e:
+        print(f"Error {e} occured at textnode -{text_n}-")
+        return [text_n]
     return text_n_results
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):

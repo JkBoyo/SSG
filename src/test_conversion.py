@@ -2,7 +2,7 @@ import unittest
 
 from constants import Text_Type
 from htmlnode import LeafNode
-from main import text_node_to_html_node
+from mdtotextnode import text_node_to_html_node
 from textnode import TextNode
 
 
