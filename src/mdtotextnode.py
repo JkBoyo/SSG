@@ -73,7 +73,6 @@ def text_to_html_list_nodes(text, list_type):
 def markdown_to_blocks(markdown):
     block_list = markdown.split('\n\n')
     for block in block_list:
-        print(f"-{block}-")
         block.strip()
         if block == '':
             block_list.remove(block)

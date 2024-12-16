@@ -2,7 +2,7 @@ import unittest
 
 from constants import Text_Type
 from htmlnode import LeafNode
-from mdtotextnode import text_node_to_html_node
+from mdtotextnode import text_node_to_html_node, check_for_ordered_list, line_start_contains
 from textnode import TextNode
 
 
@@ -36,3 +36,26 @@ class TestTNConversion(unittest.TestCase):
         node = TextNode("this is a test", 'incorrect', None)
         with self.assertRaises(ValueError, msg= "Unknown text type"):
             text_node_to_html_node(node)
+
+    def test_check_for_ordered_list(self):
+        test_lists = [
+                "1. first el\n2. second el\n3. third el\n4. 4th el",
+                "2. second el\n1. first el\n3. third el"
+        ]
+        expected_results = [
+            True,
+            False
+        ]
+        self.assertEqual([check_for_ordered_list(test_list) for test_list in test_lists], expected_results)
+
+    def test_line_start_contains(self):
+        test_strings = [
+            "* one\n- two\n> three",
+            "( one\n- two\n> three"
+        ]
+        expected_results = [
+            True,
+            False
+        ]
+        self.assertEqual([line_start_contains(test_string) for test_string in test_strings], expected_results)
+    
