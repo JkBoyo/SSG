@@ -88,18 +88,15 @@ class TestTNConversion(unittest.TestCase):
         ]
         result_nodes = [
             [
-            ParentNode('li', [LeafNode(None, "1. first el", None)]), 
-            ParentNode('li', [LeafNode(None, "2. second el", None)]), 
-            ParentNode('li', [LeafNode(None, "3. third el", None)]),
+            ParentNode('li', [LeafNode(None, "first el", None)], None), 
+            ParentNode('li', [LeafNode(None, "second el", None)], None), 
+            ParentNode('li', [LeafNode(None, "third el", None)], None),
             ],
             [
-            ParentNode('li', [LeafNode(None, "- first el", None)]),
-            ParentNode('li', [LeafNode(None, "- second el", None)]),
-            ParentNode('li', [LeafNode(None, "- third el", None)])
+            ParentNode('li', [LeafNode(None, "first el", None)], None),
+            ParentNode('li', [LeafNode(None, "second el", None)], None),
+            ParentNode('li', [LeafNode(None, "third el", None)], None)
             ]
         ]
-        for text, list_t in example_text_list:
-            print(f"text {text}:\nList Type {list_t}")
-            print(result_nodes) 
         self.assertEqual([text_to_html_list_nodes(text, list_t) for text, list_t in example_text_list],
                          result_nodes)
