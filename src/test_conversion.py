@@ -1,8 +1,13 @@
 import unittest
 
 from constants import Text_Type
-from htmlnode import LeafNode
-from mdtotextnode import text_node_to_html_node, check_for_ordered_list, line_start_contains
+from htmlnode import LeafNode, ParentNode
+from mdtotextnode import (text_node_to_html_node, 
+                        check_for_ordered_list, 
+                        line_start_contains, 
+                        markdown_to_blocks, 
+                        text_to_htmlnode,
+                        text_to_html_list_nodes) 
 from textnode import TextNode
 
 
@@ -57,5 +62,44 @@ class TestTNConversion(unittest.TestCase):
             True,
             False
         ]
-        self.assertEqual([line_start_contains(test_string) for test_string in test_strings], expected_results)
+        self.assertEqual([line_start_contains(test_string, '*->') for test_string in test_strings], expected_results)
     
+    def test_markdown_to_blocks(self):
+        test_markdown = [
+            "this is a paragraph block\n\n1. list block\n2. with multiple elements",
+            "\n\nparagraph block\n\n* unordered list\n- block"
+        ]
+        result_lists = [
+            [
+                "this is a paragraph block",
+                "1. list block\n2. with multiple elements"
+            ],
+            [
+                "paragraph block",
+                "* unordered list\n- block"
+            ]
+        ]
+        self.assertEqual([markdown_to_blocks(markdown) for markdown in test_markdown], result_lists)
+
+    def test_text_to_html_list_nodes(self):
+        example_text_list = [
+            ("1. first el\n2. second el\n3. third el", 'ol'),
+            ("- first el\n- second el\n- third el", 'ul')
+        ]
+        result_nodes = [
+            [
+            ParentNode('li', [LeafNode(None, "1. first el", None)]), 
+            ParentNode('li', [LeafNode(None, "2. second el", None)]), 
+            ParentNode('li', [LeafNode(None, "3. third el", None)]),
+            ],
+            [
+            ParentNode('li', [LeafNode(None, "- first el", None)]),
+            ParentNode('li', [LeafNode(None, "- second el", None)]),
+            ParentNode('li', [LeafNode(None, "- third el", None)])
+            ]
+        ]
+        for text, list_t in example_text_list:
+            print(f"text {text}:\nList Type {list_t}")
+            print(result_nodes) 
+        self.assertEqual([text_to_html_list_nodes(text, list_t) for text, list_t in example_text_list],
+                         result_nodes)
