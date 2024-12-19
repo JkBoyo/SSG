@@ -105,13 +105,14 @@ class TestTNConversion(unittest.TestCase):
     def test_block_to_html_node(self):
         test_blocks = [
             ("# heading 1",Block_Type.heading) , ("## heading 2", Block_Type.heading), ("### heading 3", Block_Type.heading), ("#### heading 4", Block_Type.heading), 
-            ("##### heading 5", Block_Type.heading), ("###### 6", Block_Type.heading) ,
+            ("##### heading 5", Block_Type.heading), ("###### heading 6", Block_Type.heading) ,
             ("```\nthis is a code block\n```", Block_Type.code),
             ("> these lines\n> should all be in a quote block\n> correctly laid out", Block_Type.quote),
             ("* 1st el\n- 2nd el\n* 3rd el",Block_Type.unordered_list),
             ("1. 1st el\n2. 2nd el\n3. 3rd el", Block_Type.ordered_list),
             ("this should just be a paragraph", Block_Type.paragraph)
         ]
+        self.maxDiff = None
         expected_htmlnode = [
             ParentNode('h1', text_to_htmlnode("heading 1")),     
             ParentNode('h2', text_to_htmlnode("heading 2")),     
@@ -121,8 +122,8 @@ class TestTNConversion(unittest.TestCase):
             ParentNode('h6', text_to_htmlnode("heading 6")),     
             ParentNode('code', text_to_htmlnode("this is a code block")),     
             ParentNode('blockquote', text_to_htmlnode("these lines\nshould all be in a quote block\ncorrectly laid out")),     
-            ParentNode('ul', text_to_html_list_nodes("* 1st el\n- 2nd el\n* 3rd el")),     
-            ParentNode('ol', text_to_html_list_nodes("1. 1st el\n2. 2nd el\n3. 3rd el")),     
+            ParentNode('ul', text_to_html_list_nodes("* 1st el\n- 2nd el\n* 3rd el", 'ul')),     
+            ParentNode('ol', text_to_html_list_nodes("1. 1st el\n2. 2nd el\n3. 3rd el", 'ol')),     
             ParentNode('p', text_to_htmlnode("this should just be a paragraph")),     
         ]
         self.assertEqual([block_to_html_node(block, block_type) for block, block_type in test_blocks], expected_htmlnode)

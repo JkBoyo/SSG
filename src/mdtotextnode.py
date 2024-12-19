@@ -25,7 +25,7 @@ def block_to_html_node(block, block_type):
             return ParentNode('code',
                               text_to_htmlnode(text))
         case Block_Type.quote:
-            text = block.strip('>')
+            text = block.replace('> ', "")
             return ParentNode('blockquote',
                               text_to_htmlnode(text))
         case Block_Type.unordered_list:
