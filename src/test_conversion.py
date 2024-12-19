@@ -1,13 +1,14 @@
 import unittest
 
-from constants import Text_Type
+from constants import Text_Type, Block_Type
 from htmlnode import LeafNode, ParentNode
 from mdtotextnode import (text_node_to_html_node, 
                         check_for_ordered_list, 
                         line_start_contains, 
                         markdown_to_blocks, 
                         text_to_htmlnode,
-                        text_to_html_list_nodes) 
+                        text_to_html_list_nodes,
+                        block_to_html_node) 
 from textnode import TextNode
 
 
@@ -100,3 +101,29 @@ class TestTNConversion(unittest.TestCase):
         ]
         self.assertEqual([text_to_html_list_nodes(text, list_t) for text, list_t in example_text_list],
                          result_nodes)
+        
+    def test_block_to_html_node(self):
+        test_blocks = [
+            ("# heading 1",Block_Type.heading) , ("## heading 2", Block_Type.heading), ("### heading 3", Block_Type.heading), ("#### heading 4", Block_Type.heading), 
+            ("##### heading 5", Block_Type.heading), ("###### 6", Block_Type.heading) ,
+            ("```\nthis is a code block\n```", Block_Type.code),
+            ("> these lines\n> should all be in a quote block\n> correctly laid out", Block_Type.quote),
+            ("* 1st el\n- 2nd el\n* 3rd el",Block_Type.unordered_list),
+            ("1. 1st el\n2. 2nd el\n3. 3rd el", Block_Type.ordered_list),
+            ("this should just be a paragraph", Block_Type.paragraph)
+        ]
+        expected_htmlnode = [
+            ParentNode('h1', text_to_htmlnode("heading 1")),     
+            ParentNode('h2', text_to_htmlnode("heading 2")),     
+            ParentNode('h3', text_to_htmlnode("heading 3")),     
+            ParentNode('h4', text_to_htmlnode("heading 4")),     
+            ParentNode('h5', text_to_htmlnode("heading 5")),     
+            ParentNode('h6', text_to_htmlnode("heading 6")),     
+            ParentNode('code', text_to_htmlnode("this is a code block")),     
+            ParentNode('blockquote', text_to_htmlnode("these lines\nshould all be in a quote block\ncorrectly laid out")),     
+            ParentNode('ul', text_to_html_list_nodes("* 1st el\n- 2nd el\n* 3rd el")),     
+            ParentNode('ol', text_to_html_list_nodes("1. 1st el\n2. 2nd el\n3. 3rd el")),     
+            ParentNode('p', text_to_htmlnode("this should just be a paragraph")),     
+        ]
+        self.assertEqual([block_to_html_node(block, block_type) for block, block_type in test_blocks], expected_htmlnode)
+            
