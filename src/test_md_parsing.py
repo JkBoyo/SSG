@@ -7,9 +7,7 @@ from mdtotextnode import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
-    text_to_textnodes,
-    markdown_to_blocks,
-    block_to_block_type)
+    text_to_textnodes)
 from textnode import TextNode
 
 
@@ -161,36 +159,4 @@ class Test_MD_Parsing(unittest.TestCase):
             ]   
         self.assertEqual(text_to_textnodes(test_text), result_nodes)
 
-    def test_markdown_to_blocks(self):
-        test_md = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n* This is the first list item in a list block\n* This is a list item\n* This is another list item"
-
-        result_blocks = [
-            "# This is a heading",
-            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
-            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
-
-        ]
-        self.assertEqual(markdown_to_blocks(test_md), result_blocks)
     
-    def test_Blocks_to_block_type(self):
-        test_block_list = ["###### This is a heading",
-                           "####### this is not a heading",
-                            "```\nprint('this is a code block')\n```",
-                            "```\nprint('this code block is missing a backtick')\n``",
-                            "> this block is a quote block\n> with three separate lines of quoted text\n> Ain't that neat",
-                            ">this block forgot the space after the line start",
-                            "* this is an undordered list\n- with hyphens\n* and stars",
-                            "* this unordered list has a wrong char\n$ on the second element",
-                            "1. first element\n2. second element\n3. third element",
-                            "1. the second element\n3. wrong spot\n2. is in"]
-        test_block_results = [Block_Type.heading,
-                              Block_Type.paragraph,
-                              Block_Type.code,
-                              Block_Type.paragraph,
-                              Block_Type.quote,
-                              Block_Type.paragraph,
-                              Block_Type.unordered_list,
-                              Block_Type.paragraph,
-                              Block_Type.ordered_list,
-                              Block_Type.paragraph]
-        self.assertEqual([block_to_block_type(block) for block in test_block_list] , test_block_results)

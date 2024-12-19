@@ -2,13 +2,14 @@ import unittest
 
 from constants import Text_Type, Block_Type
 from htmlnode import LeafNode, ParentNode
-from mdtotextnode import (text_node_to_html_node, 
+from conversion import (text_node_to_html_node, 
                         check_for_ordered_list, 
                         line_start_contains, 
                         markdown_to_blocks, 
                         text_to_htmlnode,
                         text_to_html_list_nodes,
-                        block_to_html_node) 
+                        block_to_html_node,
+                        block_to_block_type) 
 from textnode import TextNode
 
 
@@ -81,7 +82,15 @@ class TestTNConversion(unittest.TestCase):
             ]
         ]
         self.assertEqual([markdown_to_blocks(markdown) for markdown in test_markdown], result_lists)
+        test_md = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n* This is the first list item in a list block\n* This is a list item\n* This is another list item"
 
+        result_blocks = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
+
+        ]
+        self.assertEqual(markdown_to_blocks(test_md), result_blocks)
     def test_text_to_html_list_nodes(self):
         example_text_list = [
             ("1. first el\n2. second el\n3. third el", 'ol'),
@@ -120,11 +129,33 @@ class TestTNConversion(unittest.TestCase):
             ParentNode('h4', text_to_htmlnode("heading 4")),     
             ParentNode('h5', text_to_htmlnode("heading 5")),     
             ParentNode('h6', text_to_htmlnode("heading 6")),     
-            ParentNode('code', text_to_htmlnode("this is a code block")),     
+            ParentNode('pre',ParentNode('code', text_to_htmlnode("this is a code block"))),     
             ParentNode('blockquote', text_to_htmlnode("these lines\nshould all be in a quote block\ncorrectly laid out")),     
             ParentNode('ul', text_to_html_list_nodes("* 1st el\n- 2nd el\n* 3rd el", 'ul')),     
             ParentNode('ol', text_to_html_list_nodes("1. 1st el\n2. 2nd el\n3. 3rd el", 'ol')),     
             ParentNode('p', text_to_htmlnode("this should just be a paragraph")),     
         ]
         self.assertEqual([block_to_html_node(block, block_type) for block, block_type in test_blocks], expected_htmlnode)
-            
+    
+    def test_Blocks_to_block_type(self):
+        test_block_list = ["###### This is a heading",
+                           "####### this is not a heading",
+                            "```\nprint('this is a code block')\n```",
+                            "```\nprint('this code block is missing a backtick')\n``",
+                            "> this block is a quote block\n> with three separate lines of quoted text\n> Ain't that neat",
+                            ">this block forgot the space after the line start",
+                            "* this is an undordered list\n- with hyphens\n* and stars",
+                            "* this unordered list has a wrong char\n$ on the second element",
+                            "1. first element\n2. second element\n3. third element",
+                            "1. the second element\n3. wrong spot\n2. is in"]
+        test_block_results = [Block_Type.heading,
+                              Block_Type.paragraph,
+                              Block_Type.code,
+                              Block_Type.paragraph,
+                              Block_Type.quote,
+                              Block_Type.paragraph,
+                              Block_Type.unordered_list,
+                              Block_Type.paragraph,
+                              Block_Type.ordered_list,
+                              Block_Type.paragraph]
+        self.assertEqual([block_to_block_type(block) for block in test_block_list] , test_block_results)
