@@ -22,8 +22,8 @@ def block_to_html_node(block, block_type):
             #cut off the backticks
             text = block[3:-4].strip()
             return ParentNode('pre',
-                ParentNode('code',
-                              text_to_htmlnode(text))
+                [ParentNode('code',
+                              text_to_htmlnode(text))]
                               )
         case Block_Type.quote:
             text = block.replace('> ', "")
