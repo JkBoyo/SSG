@@ -129,7 +129,7 @@ class TestTNConversion(unittest.TestCase):
             ParentNode('h4', text_to_htmlnode("heading 4")),     
             ParentNode('h5', text_to_htmlnode("heading 5")),     
             ParentNode('h6', text_to_htmlnode("heading 6")),     
-            ParentNode('pre',ParentNode('code', text_to_htmlnode("this is a code block"))),     
+            ParentNode('pre',[ParentNode('code', text_to_htmlnode("this is a code block"))]),     
             ParentNode('blockquote', text_to_htmlnode("these lines\nshould all be in a quote block\ncorrectly laid out")),     
             ParentNode('ul', text_to_html_list_nodes("* 1st el\n- 2nd el\n* 3rd el", 'ul')),     
             ParentNode('ol', text_to_html_list_nodes("1. 1st el\n2. 2nd el\n3. 3rd el", 'ol')),     
